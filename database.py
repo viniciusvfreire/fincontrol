@@ -44,5 +44,3 @@ def criar_tabelas():
     conexao.commit()
     conexao.close()
     print("Banco de dados iniciado com sucesso!")
-
-criar_tabelas()
