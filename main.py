@@ -3,92 +3,118 @@ from usuarios import cadastrar_usuario, buscar_usuario_por_email
 from categorias import cadastrar_categoria, listar_categorias
 from transacoes import cadastrar_transacao, listar_transacoes, deletar_transacao, editar_transacao
 
+
 usuario_logado = None
 
-
 def menu_principal():
-    while True:
-        print("\n=== Controle de Gastos ===")
-        print("1 - Cadastrar Usuário")
-        print("2 - Fazer login")
-        print("0 - Sair")
-        return(input("Escolha uma opção: "))
-    
+    print("\n===============================")
+    print("     BEM-VINDO AO FINCONTROL   ")
+    print("===============================")
+    print("1 - Cadastrar usuário")
+    print("2 - Fazer login")
+    print("0 - Sair")
+    return input("Escolha uma opção: ")
+
 def menu_sistema():
-    print(f"\n OLÁ, {usuario_logado['nome'].upper()}!")
+    print(f"\n=== OLÁ, {usuario_logado['nome'].upper()}! ===")
     print("1 - Cadastrar categoria")
     print("2 - Listar categorias")
     print("3 - Cadastrar transação")
-    print("4 - Listar transações")  
-    print("5 - Deletar transações")
-    print("6 - Sair")
-    return(input("Escolha uma opção: "))
+    print("4 - Listar transações")
+    print("5 - Deletar transação")
+    print("0 - Sair")
+    return input("Escolha uma opção: ")
 
 def fazer_login():
     global usuario_logado
-
-    print("\nLogin ")    
-    email = input("Digite seu email: ")
-    senha = input("Digite sua senha: ")
+    print("\n--- LOGIN ---")
+    email = input("Email: ")
+    senha = input("Senha: ")
 
     usuario = buscar_usuario_por_email(email)
 
-    if usuario and usuario['senha'] == senha:
+    if usuario and usuario["senha"] == senha:
         usuario_logado = usuario
-        print(f"Bem-vindo, {usuario_logado['nome']}!")
+        print(f"Login realizado com sucesso! Bem-vindo, {usuario['nome']}!")
     else:
-        print("Email ou senha incorretos. Tente novamente.")
+        print("Email ou senha incorretos!")
 
 def main():
     criar_tabelas()
 
     while True:
-
-        if usuario_logado is None: 
+        if usuario_logado is None:
             opcao = menu_principal()
 
-            
             if opcao == "1":
-                print("\nCadastro de usuário")
-                nome = input("Digite seu nome: ")
-                email = input("Digite seu email: ")
-                senha = input("Digite sua senha: ")
+                print("\n--- CADASTRO DE USUÁRIO ---")
+                nome  = input("Nome: ")
+                email = input("Email: ")
+                senha = input("Senha: ")
                 cadastrar_usuario(nome, email, senha)
 
-            elif opcao == "2":  
+            elif opcao == "2":
                 fazer_login()
 
             elif opcao == "0":
-                print("Saindo do programa. Até mais!")
+                print("Encerrando sistema... Até logo!")
                 break
 
             else:
-                print("Opção inválida.")    
+                print("Opção inválida!")
 
-        else: 
+        else:
             opcao = menu_sistema()
 
             if opcao == "1":
-                print("\nCadastro de categoria")
-                nome = input("Digite o nome da categoria: ")
-                tipo = input("Digite o tipo (receita ou despesa): ")
+                print("\n--- CADASTRAR CATEGORIA ---")
+                nome = input("Nome da categoria: ")
+                tipo = input("Tipo (receita/despesa): ")
                 cadastrar_categoria(nome, tipo)
 
             elif opcao == "2":
                 print("\n--- CATEGORIAS CADASTRADAS ---")
-
                 categorias = listar_categorias()
-
                 if categorias:
                     for c in categorias:
                         print(f"[{c['id']}] {c['nome']} - {c['tipo']}")
-
                 else:
                     print("Nenhuma categoria cadastrada ainda.")
-            
+
             elif opcao == "3":
                 print("\n--- CADASTRAR TRANSAÇÃO ---")
-                categorias = listar_categorias()    
-
+                categorias = listar_categorias()
                 if not categorias:
-                    print("Cadastre uma categoria primeiro!") 
+                    print("Cadastre uma categoria primeiro!")
+                else:
+                    for c in categorias:
+                        print(f"[{c['id']}] {c['nome']} - {c['tipo']}")
+                    descricao   = input("Descrição: ")
+                    valor       = float(input("Valor: "))
+                    data        = input("Data (dd/mm/aaaa): ")
+                    tipo        = input("Tipo (receita/despesa): ")
+                    id_categoria = int(input("ID da categoria: "))
+                    cadastrar_transacao(descricao, valor, data, tipo, usuario_logado["id"], id_categoria)
+
+            elif opcao == "4":
+                print("\n--- SUAS TRANSAÇÕES ---")
+                transacoes = listar_transacoes(usuario_logado["id"])
+                if transacoes:
+                    for t in transacoes:
+                        print(f"[{t['id']}] {t['data']} | {t['descricao']} | R$ {t['valor']:.2f} | {t['tipo']} | {t['categoria']}")
+                else:
+                    print("Nenhuma transação cadastrada ainda.")
+
+            elif opcao == "5":
+                print("\n--- DELETAR TRANSAÇÃO ---")
+                id_transacao = int(input("ID da transação: "))
+                deletar_transacao(id_transacao)
+
+            elif opcao == "0":
+                print("Encerrando sistema... Até logo!")
+                break
+
+            else:
+                print("Opção inválida!")
+
+main()
