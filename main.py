@@ -27,7 +27,7 @@ def menu_sistema():
 
 def fazer_login():
     global usuario_logado
-    print("\n--- LOGIN ---")
+    print("\nLOGIN")
     email = input("Email: ")
     senha = input("Senha: ")
 
@@ -67,13 +67,13 @@ def main():
             opcao = menu_sistema()
 
             if opcao == "1":
-                print("\n--- CADASTRAR CATEGORIA ---")
+                print("\nCADASTRAR CATEGORIA")
                 nome = input("Nome da categoria: ")
                 tipo = input("Tipo (receita/despesa): ")
                 cadastrar_categoria(nome, tipo)
 
             elif opcao == "2":
-                print("\n--- CATEGORIAS CADASTRADAS ---")
+                print("\nCATEGORIAS CADASTRADAS")
                 categorias = listar_categorias()
                 if categorias:
                     for c in categorias:
@@ -82,7 +82,7 @@ def main():
                     print("Nenhuma categoria cadastrada ainda.")
 
             elif opcao == "3":
-                print("\n--- CADASTRAR TRANSAÇÃO ---")
+                print("\nCADASTRAR TRANSAÇÃO")
                 categorias = listar_categorias()
                 if not categorias:
                     print("Cadastre uma categoria primeiro!")
@@ -97,7 +97,7 @@ def main():
                     cadastrar_transacao(descricao, valor, data, tipo, usuario_logado["id"], id_categoria)
 
             elif opcao == "4":
-                print("\n--- SUAS TRANSAÇÕES ---")
+                print("\nSUAS TRANSAÇÕES")
                 transacoes = listar_transacoes(usuario_logado["id"])
                 if transacoes:
                     for t in transacoes:
@@ -106,7 +106,7 @@ def main():
                     print("Nenhuma transação cadastrada ainda.")
 
             elif opcao == "5":
-                print("\n--- DELETAR TRANSAÇÃO ---")
+                print("\nDELETAR TRANSAÇÃO")
                 id_transacao = int(input("ID da transação: "))
                 deletar_transacao(id_transacao)
 
