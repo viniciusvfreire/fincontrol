@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block conteudo %}
+<div class="row">
+
+    <div class="col-md-4">
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Nova categoria</h5>
+                <form method="POST" action="{{ url_for('nova_categoria') }}">
+                    <div class="mb-2">
+                        <input type="text" name="nome" class="form-control" placeholder="Nome da categoria" required>
+                    </div>
+                    <div class="mb-2">
+                        <select name="tipo" class="form-select" required>
+                            <option value="">Tipo...</option>
+                            <option value="receita">Receita</option>
+                            <option value="despesa">Despesa</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Adicionar categoria</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Nova transação</h5>
+                <form method="POST" action="{{ url_for('nova_transacao') }}">
+                    <div class="mb-2">
+                        <input type="text" name="descricao" class="form-control" placeholder="Descrição" required>
+                    </div>
+                    <div class="mb-2">
+                        <input type="number" name="valor" class="form-control" placeholder="Valor" step="0.01" min="0" required>
+                    </div>
+                    <div class="mb-2">
+                        <input type="date" name="data" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <select name="tipo" class="form-select" required>
+                            <option value="">Tipo...</option>
+                            <option value="receita">Receita</option>
+                            <option value="despesa">Despesa</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <select name="id_categoria" class="form-select" required>
+                            <option value="">Categoria...</option>
+                            {% for c in categorias %}
+                            <option value="{{ c['id'] }}">{{ c['nome'] }} - {{ c['tipo'] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Adicionar transação</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Suas transações</h5>
+
+                {% if transacoes %}
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Descrição</th>
+                            <th>Valor</th>
+                            <th>Data</th>
+                            <th>Tipo</th>
+                            <th>Categoria</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in transacoes %}
+                        <tr>
+                            <td>{{ t['descricao'] }}</td>
+                            <td>R$ {{ "%.2f"|format(t['valor']) }}</td>
+                            <td>{{ t['data'] }}</td>
+                            <td>
+                                {% if t['tipo'] == 'receita' %}
+                                <span class="badge bg-success">Receita</span>
+                                {% else %}
+                                <span class="badge bg-danger">Despesa</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ t['categoria'] }}</td>
+                            <td>
+                                <a href="{{ url_for('deletar', id=t['id']) }}" 
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Deseja deletar esta transação?')">
+                                   Deletar
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted">Nenhuma transação cadastrada ainda.</p>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
