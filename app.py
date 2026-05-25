@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from database import criar_tabelas
-from usuarios import cadastrar_usuario, buscar_usuario_por_email
+from usuarios import cadastrar_usuario, buscar_usuario_por_email, verificar_senha
 from categorias import cadastrar_categoria, listar_categorias
 from transacoes import cadastrar_transacao, listar_transacoes, deletar_transacao
 
@@ -19,7 +19,7 @@ def login():
         email = request.form["email"]
         senha = request.form["senha"]
         usuario = buscar_usuario_por_email(email)
-        if usuario and usuario["senha"] == senha:
+        if usuario and verificar_senha(senha, usuario["senha"]):
             session["usuario_id"] = usuario["id"]
             session["usuario_nome"] = usuario["nome"]
             return redirect(url_for("dashboard"))

@@ -60,3 +60,21 @@ def editar_transacao(id_transacao, descricao, valor, data, tipo, id_categoria):
     conexao.commit()
     conexao.close()
     print("Transação atualizada com sucesso!")
+
+
+    def buscar_transacao_por_nome(descricao, id_usuario):
+        conexao = get_conexao()
+        cursor = conexao.cursor()
+
+        cursor.execute("""
+            SELECT t.id, t.descricao, t.valor, t.data, t.tipo, c.nome AS categoria
+            FROM transacao t
+            JOIN categoria c ON t.id_categoria = c.id
+            WHERE t.id_usuario = ?
+            AND t.descricao LIKE ?
+            ORDER BY t.data DESC
+        """, (id_usuario, f"%{descricao}%"))
+
+        transacoes = cursor.fetchall()
+        conexao.close()
+        return transacoes

@@ -1,5 +1,5 @@
 from database import criar_tabelas
-from usuarios import cadastrar_usuario, buscar_usuario_por_email
+from usuarios import cadastrar_usuario, buscar_usuario_por_email, verificar_senha
 from categorias import cadastrar_categoria, listar_categorias
 from transacoes import cadastrar_transacao, listar_transacoes, deletar_transacao, editar_transacao
 
@@ -33,7 +33,7 @@ def fazer_login():
 
     usuario = buscar_usuario_por_email(email)
 
-    if usuario and usuario["senha"] == senha:
+    if usuario and verificar_senha(senha, usuario["senha"]):
         usuario_logado = usuario
         print(f"Login realizado com sucesso! Bem-vindo, {usuario['nome']}!")
     else:
