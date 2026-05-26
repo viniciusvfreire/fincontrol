@@ -1,15 +1,13 @@
 from database import get_conexao
 
-def cadastrar_transacao(descricao, valor, data, tipo, id_usuario, id_categoria):
-    
-
+def cadastrar_transacao(descricao, valor, data, tipo, id_usuario, id_categoria, id_fornecedor=None, id_forma_pagamento=None):
     conexao = get_conexao()
     cursor = conexao.cursor()
 
     cursor.execute("""
-        INSERT INTO transacao (descricao, valor, data, tipo, id_usuario, id_categoria)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (descricao, valor, data, tipo, id_usuario, id_categoria))
+        INSERT INTO transacao (descricao, valor, data, tipo, id_usuario, id_categoria, id_fornecedor, id_forma_pagamento)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (descricao, valor, data, tipo, id_usuario, id_categoria, id_fornecedor, id_forma_pagamento))
 
     conexao.commit()
     conexao.close()
@@ -62,19 +60,17 @@ def editar_transacao(id_transacao, descricao, valor, data, tipo, id_categoria):
     print("Transação atualizada com sucesso!")
 
 
-    def buscar_transacao_por_nome(descricao, id_usuario):
-        conexao = get_conexao()
-        cursor = conexao.cursor()
-
-        cursor.execute("""
-            SELECT t.id, t.descricao, t.valor, t.data, t.tipo, c.nome AS categoria
-            FROM transacao t
-            JOIN categoria c ON t.id_categoria = c.id
-            WHERE t.id_usuario = ?
-            AND t.descricao LIKE ?
-            ORDER BY t.data DESC
-        """, (id_usuario, f"%{descricao}%"))
-
-        transacoes = cursor.fetchall()
-        conexao.close()
-        return transacoes
+def buscar_transacao_por_nome(descricao, id_usuario):
+    conexao = get_conexao()
+    cursor = conexao.cursor()
+    cursor.execute("""
+        SELECT t.id, t.descricao, t.valor, t.data, t.tipo, c.nome AS categoria
+        FROM transacao t
+        JOIN categoria c ON t.id_categoria = c.id
+        WHERE t.id_usuario = ?
+        AND t.descricao LIKE ?
+        ORDER BY t.data DESC
+    """, (id_usuario, f"%{descricao}%"))
+    transacoes = cursor.fetchall()
+    conexao.close()
+    return transacoes
