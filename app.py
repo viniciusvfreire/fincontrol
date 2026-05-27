@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from database import criar_tabelas
 from usuarios import cadastrar_usuario, buscar_usuario_por_email, verificar_senha
-from categorias import cadastrar_categoria, listar_categorias
+from categorias import listar_categorias
 from transacoes import cadastrar_transacao, listar_transacoes, deletar_transacao
+from fornecedor import cadastrar_fornecedor, listar_fornecedores, editar_fornecedor, deletar_fornecedor
+from forma_pagamento import cadastrar_forma_pagamento, listar_formas_pagamento, deletar_forma_pagamento
 
 app = Flask(__name__)
 app.secret_key = "fincontrol2026"
@@ -41,23 +43,33 @@ def cadastro():
 def dashboard():
     if "usuario_id" not in session:
         return redirect(url_for("login"))
-    categorias = listar_categorias()
-    transacoes = listar_transacoes(session["usuario_id"])
+    categorias   = listar_categorias()
+    transacoes   = listar_transacoes(session["usuario_id"])
+    fornecedores = listar_fornecedores()
+    formas       = listar_formas_pagamento()
     return render_template("dashboard.html",
                            nome=session["usuario_nome"],
                            categorias=categorias,
-                           transacoes=transacoes)
+                           transacoes=transacoes,
+                           fornecedores=fornecedores,
+                           formas=formas)
 
 @app.route("/cadastrar-transacao", methods=["POST"])
 def nova_transacao():
     if "usuario_id" not in session:
         return redirect(url_for("login"))
-    descricao    = request.form["descricao"]
-    valor        = float(request.form["valor"])
-    data         = request.form["data"]
-    tipo         = request.form["tipo"]
-    id_categoria = int(request.form["id_categoria"])
-    cadastrar_transacao(descricao, valor, data, tipo, session["usuario_id"], id_categoria)
+    descricao          = request.form["descricao"]
+    valor              = float(request.form["valor"])
+    data               = request.form["data"]
+    tipo               = request.form["tipo"]
+    id_categoria       = int(request.form["id_categoria"])
+    id_fornecedor      = request.form.get("id_fornecedor") or None
+    id_forma_pagamento = request.form.get("id_forma_pagamento") or None
+    if id_fornecedor:
+        id_fornecedor = int(id_fornecedor)
+    if id_forma_pagamento:
+        id_forma_pagamento = int(id_forma_pagamento)
+    cadastrar_transacao(descricao, valor, data, tipo, session["usuario_id"], id_categoria, id_fornecedor, id_forma_pagamento)
     return redirect(url_for("dashboard"))
 
 @app.route("/deletar-transacao/<int:id>")
@@ -67,13 +79,36 @@ def deletar(id):
     deletar_transacao(id)
     return redirect(url_for("dashboard"))
 
-@app.route("/cadastrar-categoria", methods=["POST"])
-def nova_categoria():
+@app.route("/cadastrar-fornecedor", methods=["POST"])
+def novo_fornecedor():
+    if "usuario_id" not in session:
+        return redirect(url_for("login"))
+    nome     = request.form["nome"]
+    cnpj     = request.form.get("cnpj", "")
+    telefone = request.form.get("telefone", "")
+    cadastrar_fornecedor(nome, cnpj, telefone)
+    return redirect(url_for("dashboard"))
+
+@app.route("/deletar-fornecedor/<int:id>")
+def remover_fornecedor(id):
+    if "usuario_id" not in session:
+        return redirect(url_for("login"))
+    deletar_fornecedor(id)
+    return redirect(url_for("dashboard"))
+
+@app.route("/cadastrar-forma-pagamento", methods=["POST"])
+def nova_forma_pagamento():
     if "usuario_id" not in session:
         return redirect(url_for("login"))
     nome = request.form["nome"]
-    tipo = request.form["tipo"]
-    cadastrar_categoria(nome, tipo)
+    cadastrar_forma_pagamento(nome)
+    return redirect(url_for("dashboard"))
+
+@app.route("/deletar-forma-pagamento/<int:id>")
+def remover_forma_pagamento(id):
+    if "usuario_id" not in session:
+        return redirect(url_for("login"))
+    deletar_forma_pagamento(id)
     return redirect(url_for("dashboard"))
 
 @app.route("/logout")
