@@ -1,10 +1,30 @@
-import getpass
+import sys
+import msvcrt
 from database import criar_tabelas
 from usuarios import cadastrar_usuario, buscar_usuario_por_email, verificar_senha
 from categorias import listar_categorias
 from transacoes import cadastrar_transacao, listar_transacoes, deletar_transacao, editar_transacao, buscar_transacao_por_nome
 from fornecedor import cadastrar_fornecedor, listar_fornecedores, editar_fornecedor, deletar_fornecedor
 from forma_pagamento import cadastrar_forma_pagamento, listar_formas_pagamento, editar_forma_pagamento, deletar_forma_pagamento
+
+def input_senha(prompt="Senha: "):
+    print(prompt, end="", flush=True)
+    senha = ""
+    while True:
+        c = msvcrt.getwch()
+        if c in ("\r", "\n"):
+            print()
+            break
+        elif c == "\b":
+            if senha:
+                senha = senha[:-1]
+                sys.stdout.write("\b \b")
+                sys.stdout.flush()
+        else:
+            senha += c
+            sys.stdout.write("*")
+            sys.stdout.flush()
+    return senha
 
 usuario_logado = None
 
@@ -56,7 +76,7 @@ def fazer_login():
     global usuario_logado
     print("\n--- LOGIN ---")
     email = input("Email: ")
-    senha = getpass.getpass("Senha: ")
+    senha = input_senha("Senha: ")
     usuario = buscar_usuario_por_email(email)
     if usuario and verificar_senha(senha, usuario["senha"]):
         usuario_logado = usuario
@@ -75,7 +95,7 @@ def main():
                 print("\n--- CADASTRO DE USUÁRIO ---")
                 nome  = input("Nome: ")
                 email = input("Email: ")
-                senha = getpass.getpass("Senha: ")
+                senha = input_senha("Senha: ")
                 cadastrar_usuario(nome, email, senha)
 
             elif opcao == "2":
