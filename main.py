@@ -27,6 +27,9 @@ def input_senha(prompt="Senha: "):
             sys.stdout.flush()
     return senha
 
+def validar_email(email):
+    return "@" in email and "." in email
+
 usuario_logado = None
 
 def menu_principal():
@@ -79,14 +82,22 @@ def fazer_login():
     print("\n--- LOGIN ---")
     email = input("Email: ")
 
+    if not validar_email(email):
+        print("Email inválido!")
+        return
+
     tentativas = 0
+
     while tentativas < 3:
+
         senha = input_senha("Senha: ")
         usuario = buscar_usuario_por_email(email)
+
         if usuario and verificar_senha(senha, usuario["senha"]):
             usuario_logado = usuario
             print(f"Bem-vindo, {usuario_logado['nome']}!")
             return
+        
         else:
             tentativas += 1
             restantes = 3 - tentativas
@@ -108,8 +119,22 @@ def main():
                 print("\n--- CADASTRO DE USUÁRIO ---")
                 nome  = input("Nome: ")
                 email = input("Email: ")
-                senha = input_senha("Senha: ")
-                cadastrar_usuario(nome, email, senha)
+
+                if not validar_email(email):
+                    print("Email inválido!")
+                else:
+                    if buscar_usuario_por_email(email):
+                        print("Email já cadastrado!")
+                    else:
+                        senha = input_senha("Senha: ")
+                        if len(senha) < 6:
+                            print("A senha deve ter no mínimo 6 caracteres!")
+                        else:
+                            confirmar = input_senha("Confirme a senha: ")
+                            if senha != confirmar:
+                                print("As senhas não coincidem!")
+                            else:
+                                cadastrar_usuario(nome, email, senha)
 
             elif opcao == "2":
                 fazer_login()
