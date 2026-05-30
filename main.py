@@ -1,3 +1,4 @@
+import time
 import sys
 import msvcrt
 from database import criar_tabelas
@@ -73,16 +74,28 @@ def submenu_formas_pagamento():
     return input("Escolha: ")
 
 def fazer_login():
+
     global usuario_logado
     print("\n--- LOGIN ---")
     email = input("Email: ")
-    senha = input_senha("Senha: ")
-    usuario = buscar_usuario_por_email(email)
-    if usuario and verificar_senha(senha, usuario["senha"]):
-        usuario_logado = usuario
-        print(f"Bem-vindo, {usuario_logado['nome']}!")
-    else:
-        print("Email ou senha incorretos!")
+
+    tentativas = 0
+    while tentativas < 3:
+        senha = input_senha("Senha: ")
+        usuario = buscar_usuario_por_email(email)
+        if usuario and verificar_senha(senha, usuario["senha"]):
+            usuario_logado = usuario
+            print(f"Bem-vindo, {usuario_logado['nome']}!")
+            return
+        else:
+            tentativas += 1
+            restantes = 3 - tentativas
+            if restantes > 0:
+                print(f"Email ou senha incorretos! {restantes} tentativa(s) restante(s).")
+            else:
+                print("Número máximo de tentativas atingido! Aguarde 60 segundos...")
+                time.sleep(60)
+                print("Você pode tentar novamente.")
 
 def main():
     criar_tabelas()
